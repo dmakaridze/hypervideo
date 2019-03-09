@@ -1,0 +1,65 @@
+html {
+  background-color: black;
+}
+
+body, div, h1, h2, p {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  opacity: 0;
+  background-color: black;
+}
+
+.hypervideo-wrapper {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+.hypervideo-wrapper .hypervideo-links-layer {
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  pointer-events: none;
+}
+.hypervideo-wrapper .hypervideo-player {
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+.hypervideo-wrapper .hypervideo-link {
+  position: absolute;
+  cursor: pointer;
+  pointer-events: all;
+  display: none;
+}
+.hypervideo-wrapper .hypervideo-link.invisible {
+  opacity: 0;
+}
+.hypervideo-wrapper .hypervideo-link.blink {
+  animation: blinker 3s linear infinite;
+}
+.hypervideo-wrapper .hypervideo-link.contour {
+  stroke: white;
+}
+
+.hypervideo-play-btn {
+  position: fixed;
+  height: 20vh;
+  width: 20vh;
+  cursor: pointer;
+  background-size: cover;
+  background: url("../icons/play-btn.svg") center;
+}
+
+/*# sourceMappingURL=hypervideo.css.map */

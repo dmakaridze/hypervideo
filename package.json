@@ -1,0 +1,16 @@
+{
+  "name": "hypervideo",
+  "version": "1.0.0",
+  "description": "Interactive video player",
+  "main": "dist/js/hypervideo.js",
+  "repository": "https://github.com/dmakaridze/hypervideo.git",
+  "author": "David Makaridze",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "gsap": "^2.0.2",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
+    "svg.js": "^2.7.1"
+  }
+}
