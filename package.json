@@ -1,6 +1,6 @@
 {
   "name": "@dmakaridze/hypervideo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Interactive video player",
   "main": "dist/js/hypervideo.js",
   "repository": "https://github.com/dmakaridze/hypervideo.git",
