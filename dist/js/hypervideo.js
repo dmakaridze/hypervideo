@@ -1,12 +1,13 @@
 /**
  *
  * @param ops
- * @param hypervideo
- * @param draw
+ * @param hyperVideo
+ * @param parent
  * @constructor
  */
-const Link = function (ops, hypervideo, draw) {
-    this.parent = hypervideo;
+const Link = function (ops, hyperVideo, parent) {
+    console.log(ops);
+    this.parent = parent;
     this.ops = {
         id: null,
         x: 0,
@@ -18,11 +19,11 @@ const Link = function (ops, hypervideo, draw) {
         out: 0,
         class: "invisible",
         target: 0,
-        auto: 0,
+        auto: false,
         text: ""
     };
     this.hidden = true;
-    jQuery.extend(this.ops, ops);
+    $.extend(this.ops, ops);
     this.text = (this.ops.text === "") ? null : document.getElementById(this.ops.text);
     if (this.ops.auto) {
         this.shape = null;
@@ -30,28 +31,15 @@ const Link = function (ops, hypervideo, draw) {
             this.ops.out = this.ops.in + 1;
         }
     } else {
-        switch (this.ops.shape) {
-            case 'rectangle':
-                this.shape = draw.rect(this.ops.width, this.ops.height);
-                break;
-            case 'circle':
-                this.shape = draw.circle(this.ops.width);
-                break;
-            case 'none':
-                this.shape = null;
-                break;
-            default:
-                this.shape = draw.ellipse(this.ops.width, this.ops.height);
-        }
-        if (this.shape) {
-            this[0] = this.shape.node;
-            this[0].dataset.target = this.ops.target;
-            this[0].classList.add('hypervideo-link', ops.class);
-            var self = this;
-            this[0].onclick = function () {
-                this.style.display = 'none';
-                self.click();
-            }
+        this.shape = true;
+        this[0] = document.createElement('div');
+        parent[0].appendChild(this[0]);
+        this[0].dataset.target = this.ops.target;
+        this[0].dataset.target = this.ops.target;
+        this[0].classList.add('hyper-video-link', this.ops.class, this.ops.shape);
+        const self = this;
+        this[0].onclick = function () {
+            self.click();
         }
     }
 };
@@ -59,44 +47,34 @@ const Link = function (ops, hypervideo, draw) {
  *
  */
 Link.prototype.click = function () {
-    var hypervideo = this.parent;
-    var player = hypervideo.video[0];
-    if (this.text){
-        hypervideo.modalBody.innerHTML = this.text.innerHTML;
-        hypervideo.modalTitle.innerHTML = this.text.dataset.title;
-        $(hypervideo.modal).modal();
+    const hyperVideo = this.parent.parent;
+    const player = hyperVideo.video[0];
+    if (this.text) {
+        hyperVideo.modalBody.innerHTML = this.text.innerHTML;
+        hyperVideo.modalTitle.innerHTML = this.text.dataset.title;
+        $(hyperVideo.modal).modal();
     } else {
-        var target = this.ops.target;
-        TweenMax.to([player, hypervideo.links[0]], 1, {
+        let target = this.ops.target;
+        TweenMax.to([player, hyperVideo.links[0]], 1, {
             opacity: 0,
             onComplete: function () {
-                hypervideo.video[0].currentTime = target;
-                hypervideo.video[0].play();
+                hyperVideo.video[0].currentTime = target;
+                hyperVideo.video[0].play();
             }
         });
     }
 };
 /**
  *
- * @param w
- * @param h
- * @param scale
+ * @param widthRatio
+ * @param heightRatio
  */
-Link.prototype.resize = function (w, h, scale) {
+Link.prototype.resize = function (widthRatio, heightRatio) {
     if (this.shape) {
-        if (this.ops.shape !== 'none'){
-            this.x = this.ops.x * scale;
-            this.y = this.ops.y * scale;
-            this.width = this.ops.width * scale;
-            this.height = this.ops.height * scale;
-            this.shape.width(this.width);
-            this.shape.height(this.height);
-            if (this.ops.shape === 'rectangle'){
-                this.shape.move(this.x - this.width / 2, this.y - this.height / 2);
-            } else {
-                this.shape.center(this.x, this.y);
-            }
-        }
+        this[0].style.width = ((this.ops.width / widthRatio) * 100) + '%';
+        this[0].style.height = ((this.ops.height / heightRatio) * 100) + '%';//this.ops.height + '%';
+        this[0].style.left = this.ops.x + '%';
+        this[0].style.top = this.ops.y + '%';
     }
 };
 /**
@@ -104,12 +82,12 @@ Link.prototype.resize = function (w, h, scale) {
  */
 Link.prototype.show = function () {
     this.hidden = false;
-    if (this.ops.auto === 1) {
+    if (this.ops.auto) {
         this.click();
         return;
     }
     if (this.shape) {
-        this[0].style.display = 'block';
+        this[0].classList.add('visible');
     }
 };
 /**
@@ -118,7 +96,7 @@ Link.prototype.show = function () {
 Link.prototype.hide = function () {
     this.hidden = true;
     if (this.shape) {
-        this[0].style.display = 'none';
+        this[0].classList.remove('visible');
     }
 };
 /**
@@ -128,19 +106,18 @@ Link.prototype.hide = function () {
  */
 const LinksLayer = function (parent) {
     this[0] = document.createElement('div');
-    this[0].classList.add('hypervideo-links-layer');
+    this[0].classList.add('hyper-video-links-layer');
     this.parent = parent;
     this.parent[0].appendChild(this[0]);
     this.links = [];
-    this.draw = SVG(this[0]);
 };
 /**
  *
  * @param links
  */
 LinksLayer.prototype.init = function (links) {
-    for (var i = 0; i < links.length; i++) {
-        this.links[i] = new Link(links[i], this.parent, this.draw);
+    for (let i = 0; i < links.length; i++) {
+        this.links[i] = new Link(links[i], this.parent, this);
     }
 };
 /**
@@ -151,8 +128,9 @@ LinksLayer.prototype.init = function (links) {
 LinksLayer.prototype.resize = function (w, h) {
     this[0].style.width = w + 'px';
     this[0].style.height = h + 'px';
-    for (var i = 0; i < this.links.length; i++) {
-        this.links[i].resize(w, h, this.parent.scale);
+    const heightRatio = 40 / (w / h);
+    for (let i = 0; i < this.links.length; i++) {
+        this.links[i].resize(40, heightRatio);
     }
 };
 /**
@@ -160,8 +138,8 @@ LinksLayer.prototype.resize = function (w, h) {
  * @param t
  */
 LinksLayer.prototype.setTime = function (t) {
-    for (var i = 0; i < this.links.length; i++) {
-        var l = this.links[i];
+    for (let i = 0; i < this.links.length; i++) {
+        let l = this.links[i];
         if (l.ops.in < t && l.ops.out > t && l.hidden) {
             l.show();
         } else if ((l.ops.in > t || l.ops.out < t) && !l.hidden) {
@@ -176,15 +154,16 @@ LinksLayer.prototype.setTime = function (t) {
  */
 const VideoLayer = function (parent) {
     this[0] = document.createElement('video');
-    if (parent.settings.controls){
+    this[0].muted = true;
+    if (parent.settings.controls) {
         this[0].setAttribute('controls', 'controls');
     }
     this[0].onloadedmetadata = function () {
         TweenMax.to(document.body, 1, {
             opacity: 0,
             onCompleteParams: [parent],
-            onComplete: function (hypervideo) {
-                hypervideo.resize();
+            onComplete: function (hyperVideo) {
+                hyperVideo.resize();
             }
         });
     };
@@ -196,9 +175,9 @@ const VideoLayer = function (parent) {
                 TweenMax.to(parent.overlay, 1, {
                     opacity: 0,
                     onCompleteParams: [parent],
-                    onComplete: function (hypervideo) {
-                        hypervideo.overlay.style.display = 'none';
-                        hypervideo.video[0].play();
+                    onComplete: function (hyperVideo) {
+                        hyperVideo.overlay.style.display = 'none';
+                        hyperVideo.video[0].play();
                     }
                 });
             }
@@ -215,9 +194,9 @@ const VideoLayer = function (parent) {
             TweenMax.to(parent.overlay, 1, {
                 opacity: 0,
                 onCompleteParams: [parent],
-                onComplete: function (hypervideo) {
-                    hypervideo.overlay.style.display = 'none';
-                    hypervideo.video[0].play();
+                onComplete: function (hyperVideo) {
+                    hyperVideo.overlay.style.display = 'none';
+                    hyperVideo.video[0].play();
                 }
             });
         } else {
@@ -225,13 +204,13 @@ const VideoLayer = function (parent) {
             TweenMax.to(parent.overlay, 1, {
                 opacity: 1,
                 onCompleteParams: [parent],
-                onComplete: function (hypervideo) {
-                    hypervideo.video[0].pause();
+                onComplete: function (hyperVideo) {
+                    hyperVideo.video[0].pause();
                 }
             });
         }
     };
-    this[0].classList.add('hypervideo-player');
+    this[0].classList.add('hyper-video-player');
     this.parent = parent;
     this.parent[0].appendChild(this[0]);
 };
@@ -247,7 +226,8 @@ VideoLayer.prototype.setSrc = function (src) {
  * @param options
  * @constructor
  */
-const Hypervideo = function (options) {
+const HyperVideo = function (options) {
+    const hyperVideo = this;
     this.started = false;
     this.time = 0;
     if (typeof options === 'string') {
@@ -258,7 +238,7 @@ const Hypervideo = function (options) {
         options = [];
     }
     this.settings = {
-        id: 'hypervideo',
+        id: 'hyper-video',
         width: '100%',
         height: '100%',
         margin: 0,
@@ -277,67 +257,59 @@ const Hypervideo = function (options) {
     $.extend(this.settings, options);
     this[0] = document.getElementById(this.settings.id);
     if (this[0]) {
-        this[0].classList.add('hypervideo-wrapper');
+        this[0].classList.add('hyper-video-wrapper');
         this.video = new VideoLayer(this);
         this.links = new LinksLayer(this);
-        const hypervideo = this;
         $.getJSON(this.settings.story)
             .done(function (data) {
-                hypervideo.init(data);
+                hyperVideo.init(data);
             })
             .fail(function (jqxhr, textStatus, error) {
-                var err = textStatus + ", " + error;
-                console.log("Request Failed: " + err);
+                console.log("Request Failed: " + textStatus + ", " + error);
             });
         this.overlay = document.createElement('DIV');
-        this.overlay.style.width = '100vw';
-        this.overlay.style.height = '100vh';
-        this.overlay.style.position = 'fixed';
-        this.overlay.style.top = '0';
-        this.overlay.style.left = '0';
-        this.overlay.style.opacity = '0.8';
-        this.overlay.style.backgroundColor = '#000';
+        this.overlay.classList.add('hyper-video-overlay');
         this.playBtn = document.createElement('DIV');
-        this.playBtn.classList.add('hypervideo-play-btn');
+        this.playBtn.classList.add('hyper-video-play-btn');
         this.overlay.appendChild(this.playBtn);
         document.body.appendChild(this.overlay);
     }
     this.modal = null;
     this.modalTitle = null;
-    if (this.settings.modalFrameId){
+    if (this.settings.modalFrameId) {
         this.modal = document.getElementById(this.settings.modalFrameId);
-        if (this.modal && this.settings.modalTitleId){
+        if (this.modal && this.settings.modalTitleId) {
             this.modalTitle = document.getElementById(this.settings.modalTitleId);
         }
         this.modalBody = this.modal.getElementsByClassName('modal-body')[0];
         $(this.modal).on('show.bs.modal', function () {
-            hypervideo.video[0].pause();
+            hyperVideo.video[0].pause();
         });
         $(this.modal).on('hide.bs.modal', function () {
-            hypervideo.video[0].play();
+            hyperVideo.video[0].play();
         });
     }
     this.events = {
-        created: new CustomEvent('hypervideo.created'),
-        loaded: new CustomEvent('hypervideo.loaded'),
-        resized: new CustomEvent('hypervideo.resized')
+        rendered: new CustomEvent('hyperVideo.rendered'),
+        initiated: new CustomEvent('hyperVideo.initiated'),
+        resize: new CustomEvent('hyperVideo.resize')
     };
-    this[0].dispatchEvent(this.events.created);
+    this[0].dispatchEvent(this.events.rendered);
 };
 /**
  *
  * @param data
  */
-Hypervideo.prototype.init = function (data) {
-    jQuery.extend(this.story, data);
+HyperVideo.prototype.init = function (data) {
+    $.extend(this.story, data);
     this.video.setSrc(this.story.video);
     this.links.init(this.story.links, this.video);
-    this[0].dispatchEvent(this.events.loaded);
+    this[0].dispatchEvent(this.events.initiated);
 };
 /**
  *
  */
-Hypervideo.prototype.resize = function () {
+HyperVideo.prototype.resize = function () {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     this.videoWidth = this.video[0].videoWidth;
@@ -350,7 +322,6 @@ Hypervideo.prototype.resize = function () {
         this.height = vh;
         this.width = vh * aspect;
     }
-    this.scale = this.width / this.videoWidth;
     this.links.resize(this.width, this.height);
     const h = this.playBtn.clientHeight;
     const top = (window.innerHeight - this.height) / 2;
@@ -362,13 +333,13 @@ Hypervideo.prototype.resize = function () {
     this[0].style.top = top + 'px';
     this[0].style.left = left + 'px';
     TweenMax.to(document.body, 1, {opacity: 1});
-    this[0].dispatchEvent(this.events.resized);
+    this[0].dispatchEvent(this.events.resize);
 };
 /**
  *
  * @param t
  */
-Hypervideo.prototype.setTime = function (t) {
+HyperVideo.prototype.setTime = function (t) {
     this.time = t;
     this.links.setTime(t);
 };
@@ -376,17 +347,18 @@ Hypervideo.prototype.setTime = function (t) {
  *
  * @param options
  */
-const hypervideo_init = function (options) {
+const hyper_video_init = function (options) {
     if (typeof options.story === "string" && options.story !== '') {
-        var hypervideo = new Hypervideo(options);
+        const hyperVideo = new HyperVideo(options);
         window.onresize = function () {
             TweenMax.to(document.body, 1, {
                 opacity: 0,
                 onComplete: function () {
-                    hypervideo.resize();
+                    hyperVideo.resize();
                 }
             });
         };
+        return hyperVideo;
     }
-    return hypervideo;
+    return null;
 };

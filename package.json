@@ -1,5 +1,5 @@
 {
-  "name": "hypervideo",
+  "name": "@dmakaridze/hypervideo",
   "version": "1.0.0",
   "description": "Interactive video player",
   "main": "dist/js/hypervideo.js",
