@@ -11,10 +11,10 @@ You can install *hypervideo.js* with *yarn* or *npm* if you prefer:
 Terminal:
 ```shell
 // With yarn
-yarn add hypervideo
+yarn add @dmakaridze/hypervideo
 
 // With npm
-npm install hypervideo
+npm install @dmakaridze/hypervideo
 ```
 
 ### Including files:
@@ -23,11 +23,10 @@ npm install hypervideo
 <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="node_modules/hypervideo/dist/css/hypervideo.css">
 
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
-<script src="node_modules/popper.js/dist/popper.min.js"></script>
-<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="node_modules/gsap/src/minified/TweenMax.min.js"></script>
-<script src="node_modules/svg.js/dist/svg.min.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 
 <script type="text/javascript" src="node_modules/hypervideo/dist/js/hypervideo.js"></script>
 ```
@@ -56,7 +55,9 @@ hypervideo_init({
     verticalAlign: 'center',
     start: 0,
     modalFrameId: null,
-    modalTitleId: null
+    modalTitleId: null,
+    mute: false,
+    controls: false
 });
 ```
 ### People

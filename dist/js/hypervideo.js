@@ -6,7 +6,6 @@
  * @constructor
  */
 const Link = function (ops, hyperVideo, parent) {
-    console.log(ops);
     this.parent = parent;
     this.ops = {
         id: null,
@@ -154,7 +153,7 @@ LinksLayer.prototype.setTime = function (t) {
  */
 const VideoLayer = function (parent) {
     this[0] = document.createElement('video');
-    this[0].muted = true;
+    this[0].muted = parent.settings.muted;
     if (parent.settings.controls) {
         this[0].setAttribute('controls', 'controls');
     }
@@ -247,7 +246,8 @@ const HyperVideo = function (options) {
         start: 0,
         controls: false,
         modalFrameId: null,
-        modalTitleId: null
+        modalTitleId: null,
+        muted: false
     };
     this.story = {
         title: "no title",
@@ -302,6 +302,9 @@ const HyperVideo = function (options) {
  */
 HyperVideo.prototype.init = function (data) {
     $.extend(this.story, data);
+    if (this.settings.start === 0 && typeof this.story.start !== 'undefined') {
+        this.settings.start = this.story.start;
+    }
     this.video.setSrc(this.story.video);
     this.links.init(this.story.links, this.video);
     this[0].dispatchEvent(this.events.initiated);
@@ -362,3 +365,6 @@ const hyper_video_init = function (options) {
     }
     return null;
 };
+/**
+ * End of hypervideo.js
+ */
